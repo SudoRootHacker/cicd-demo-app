@@ -45,7 +45,7 @@ pipeline {
                 sonar-scanner \
                 -Dsonar.projectKey=cicd-demo \
                 -Dsonar.sources=app \
-                -Dsonar.host.url=http://192.168.1.6:9000 \
+                -Dsonar.host.url=https://interscholastic-extramural-lyman.ngrok-free.dev \
                 -Dsonar.login=$SONAR_TOKEN
                 """
             }
