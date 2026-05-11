@@ -50,7 +50,8 @@ pipeline {
                     -Dsonar.projectKey=cicd-demo \
                     -Dsonar.sources=app \
                     -Dsonar.host.url=https://interscholastic-extramural-lyman.ngrok-free.dev \
-                    -Dsonar.token=$SONAR_TOKEN
+                    -Dsonar.token=$SONAR_TOKEN \
+                    -Dsonar.javascript.lcov.reportPaths=app/coverage/lcov.info
                     '''
                 }
             }
