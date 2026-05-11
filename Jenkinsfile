@@ -4,7 +4,6 @@ pipeline {
     environment {
         IMAGE_NAME = "cicd-demo"
         IMAGE_TAG = "latest"
-        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -18,7 +17,11 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('app') {
-                    sh 'npm install'
+                    sh '''
+                    node -v || exit 1
+                    npm -v || exit 1
+                    npm install
+                    '''
                 }
             }
         }
@@ -41,13 +44,15 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                sh """
-                sonar-scanner \
-                -Dsonar.projectKey=cicd-demo \
-                -Dsonar.sources=app \
-                -Dsonar.host.url=https://interscholastic-extramural-lyman.ngrok-free.dev \
-                -Dsonar.login=$SONAR_TOKEN
-                """
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                    sonar-scanner \
+                    -Dsonar.projectKey=cicd-demo \
+                    -Dsonar.sources=app \
+                    -Dsonar.host.url=https://interscholastic-extramural-lyman.ngrok-free.dev \
+                    -Dsonar.token=$SONAR_TOKEN
+                    '''
+                }
             }
         }
 
@@ -71,10 +76,10 @@ pipeline {
 
         stage('Docker Run') {
             steps {
-                sh """
+                sh '''
                 docker rm -f cicd-demo-container || true
-                docker run -d --name cicd-demo-container -p 3000:3000 $IMAGE_NAME:$IMAGE_TAG
-                """
+                docker run -d --name cicd-demo-container -p 3000:3000 cicd-demo:latest
+                '''
             }
         }
     }
@@ -89,7 +94,6 @@ pipeline {
         }
 
         always {
-            echo 'Cleaning workspace'
             cleanWs()
         }
     }
